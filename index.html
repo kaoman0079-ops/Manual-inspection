@@ -1,134 +1,24 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>徒手検査データベース</title>
-    <style>
-        :root {
-            --primary-orange: #FF8C00;
-            --dark-orange: #E67E22;
-            --bg-color: #FFF8F0;
-        }
-        body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            color: #444;
-        }
-        header {
-            background-color: var(--primary-orange);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .container {
-            max-width: 900px;
-            margin: 2rem auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            padding: 0 1rem;
-        }
-        /* 検査カードのデザイン */
-        .test-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            border-bottom: 4px solid var(--primary-orange);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-        .test-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-            background-color: #fffaf5;
-        }
-        .test-card h3 {
-            margin: 0;
-            color: var(--dark-orange);
-        }
-        /* ポップアップ（モーダル）のスタイル */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background: white;
-            width: 90%;
-            max-width: 500px;
-            padding: 2rem;
-            border-radius: 20px;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .close-btn {
-            position: absolute;
-            top: 15px; right: 20px;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-        .modal-header {
-            border-bottom: 2px solid var(--primary-orange);
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-        }
-        .modal-header h2 {
-            margin: 0;
-            color: var(--primary-orange);
-        }
-        .section-title {
-            font-weight: bold;
-            color: var(--dark-orange);
-            margin-top: 1rem;
-            display: block;
-        }
-        ul { padding-left: 1.2rem; margin: 0.5rem 0; }
-        footer { text-align: center; padding: 2rem; color: #888; }
-    </style>
-</head>
-<body>
-
-<header>
-    <h1>徒手検査データベース</h1>
-    <p>頸肩腕カテゴリー</p>
-</header>
-
-<div class="container" id="test-list">
-    </div>
-
-<div id="modal" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <div id="modal-body">
-            </div>
-    </div>
-</div>
-
 <script>
-    // JSONデータの読み込み
     async function loadTests() {
+        const listContainer = document.getElementById('test-list');
         try {
-            const response = await fetch('./keikanwan_tests.json');
-            const data = await response.json();
-            const listContainer = document.getElementById('test-list');
+            // ここで読み込むファイル名がGitHub上のものと一致しているか確認してください
+            const fileName = './keikanwan_tests.json'; 
+            
+            const response = await fetch(fileName);
+            
+            if (!response.ok) {
+                throw new Error(`ファイルが見つかりません: ${fileName}`);
+            }
 
+            const data = await response.json();
+            
+            if (data.length === 0) {
+                listContainer.innerHTML = '<p>データが空です。</p>';
+                return;
+            }
+
+            listContainer.innerHTML = ''; // ローディング表示をクリア
             data.forEach(test => {
                 const card = document.createElement('div');
                 card.className = 'test-card';
@@ -137,11 +27,14 @@
                 listContainer.appendChild(card);
             });
         } catch (error) {
-            console.error('データの読み込みに失敗しました:', error);
+            console.error('Error:', error);
+            listContainer.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">
+                データの読み込みに失敗しました。<br>
+                原因: ${error.message}
+            </p>`;
         }
     }
 
-    // ポップアップを表示する
     function showDetail(test) {
         const modalBody = document.getElementById('modal-body');
         modalBody.innerHTML = `
@@ -158,18 +51,9 @@
         document.getElementById('modal').style.display = 'flex';
     }
 
-    // ポップアップを閉じる
     function closeModal() {
         document.getElementById('modal').style.display = 'none';
     }
 
-    // 起動時にデータを読み込む
     loadTests();
 </script>
-
-<footer>
-    © 2026 徒手検査プロジェクト
-</footer>
-
-</body>
-</html>
