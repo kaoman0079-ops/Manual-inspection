@@ -1,59 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>徒手検査データベース</title>
+    <style>
+        :root {
+            --primary-orange: #FF8C00;
+            --dark-orange: #E67E22;
+            --light-orange: #FFF3E0;
+            --bg-color: #FFF8F0;
+        }
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: #444;
+        }
+        header {
+            background-color: var(--primary-orange);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header h1 { margin: 0; font-size: 1.8rem; }
+        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.9rem; }
+
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* 検査カード */
+        .test-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            border-bottom: 5px solid var(--primary-orange);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+        }
+        .test-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            background-color: #fffaf5;
+        }
+        .test-card h3 {
+            margin: 0;
+            color: var(--dark-orange);
+            font-size: 1.2rem;
+        }
+        .test-card p {
+            font-size: 0.85rem;
+            color: #777;
+            margin-top: 10px;
+        }
+
+        /* ポップアップ（モーダル） */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 550px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 2rem;
+            border-radius: 20px;
+            position: relative;
+            animation: modalIn 0.3s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .close-btn {
+            position: absolute;
+            top: 15px; right: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: #aaa;
+            line-height: 1;
+        }
+        .close-btn:hover { color: var(--primary-orange); }
+
+        .modal-header {
+            border-bottom: 3px solid var(--light-orange);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary-orange);
+            font-size: 1.5rem;
+        }
+        .section-title {
+            font-weight: bold;
+            color: var(--dark-orange);
+            margin-top: 1.2rem;
+            display: block;
+            font-size: 1rem;
+            border-left: 4px solid var(--primary-orange);
+            padding-left: 8px;
+        }
+        .modal-body ul {
+            padding-left: 1.2rem;
+            margin: 0.8rem 0;
+        }
+        .modal-body li { margin-bottom: 8px; font-size: 0.95rem; }
+        .positive-box {
+            background-color: var(--light-orange);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #aaa;
+            font-size: 0.8rem;
+        }
+
+        /* エラー表示用 */
+        .error-msg {
+            grid-column: 1 / -1;
+            background: #fff;
+            border: 2px solid #ff4444;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>徒手検査データベース</h1>
+    <p>頸肩腕カテゴリー</p>
+</header>
+
+<div class="container" id="test-list">
+    <p style="grid-column: 1/-1; text-align: center;">データを読み込み中...</p>
+</div>
+
+<div id="modal" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <div id="modal-body" class="modal-body">
+            </div>
+    </div>
+</div>
+
 <script>
-    async function loadTests() {
+    // 1. JSONファイルを読み込んでカードを作る関数
+    async function init() {
         const listContainer = document.getElementById('test-list');
+        
         try {
-            // ここで読み込むファイル名がGitHub上のものと一致しているか確認してください
-            const fileName = './keikanwan_tests.json'; 
+            // ★重要: GitHub上のJSONファイル名と完全に一致させる必要があります
+            const targetFile = 'keikanwan_tests.json';
             
-            const response = await fetch(fileName);
+            const response = await fetch(targetFile);
             
             if (!response.ok) {
-                throw new Error(`ファイルが見つかりません: ${fileName}`);
+                throw new Error(`「${targetFile}」が見つかりませんでした。`);
             }
 
             const data = await response.json();
-            
-            if (data.length === 0) {
-                listContainer.innerHTML = '<p>データが空です。</p>';
-                return;
-            }
+            listContainer.innerHTML = ''; // 読み込み中メッセージを消す
 
-            listContainer.innerHTML = ''; // ローディング表示をクリア
-            data.forEach(test => {
+            data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'test-card';
-                card.innerHTML = `<h3>${test.name}</h3><p>${test.clinical_significance}</p>`;
-                card.onclick = () => showDetail(test);
+                card.innerHTML = `
+                    <h3>${item.name}</h3>
+                    <p>${item.clinical_significance}</p>
+                `;
+                card.onclick = () => openModal(item);
                 listContainer.appendChild(card);
             });
-        } catch (error) {
-            console.error('Error:', error);
-            listContainer.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red;">
-                データの読み込みに失敗しました。<br>
-                原因: ${error.message}
-            </p>`;
+
+        } catch (err) {
+            listContainer.innerHTML = `
+                <div class="error-msg">
+                    <p style="color:red; font-weight:bold;">データの読み込みに失敗しました</p>
+                    <p style="font-size:0.9rem;">${err.message}</p>
+                    <p style="font-size:0.8rem; margin-top:10px;">
+                        【確認事項】<br>
+                        1. JSONファイル名は正しいですか？<br>
+                        2. JSONの記述（カンマ等）にミスはないですか？
+                    </p>
+                </div>
+            `;
         }
     }
 
-    function showDetail(test) {
-        const modalBody = document.getElementById('modal-body');
-        modalBody.innerHTML = `
+    // 2. ポップアップを開く関数
+    function openModal(test) {
+        const body = document.getElementById('modal-body');
+        body.innerHTML = `
             <div class="modal-header">
                 <h2>${test.name}</h2>
             </div>
-            <span class="section-title">【操作手順】</span>
-            <ul>${test.procedure.map(step => `<li>${step}</li>`).join('')}</ul>
-            <span class="section-title">【陽性所見】</span>
-            <p>${test.positive_findings}</p>
-            <span class="section-title">【意義】</span>
-            <p>${test.clinical_significance}</p>
+            <span class="section-title">操作手順</span>
+            <ul>
+                ${test.procedure.map(p => `<li>${p}</li>`).join('')}
+            </ul>
+            <span class="section-title">陽性所見</span>
+            <div class="positive-box">${test.positive_findings}</div>
+            <span class="section-title">臨床的意義</span>
+            <p style="padding-left:8px; font-size:0.95rem;">${test.clinical_significance}</p>
         `;
         document.getElementById('modal').style.display = 'flex';
     }
 
+    // 3. ポップアップを閉じる関数
     function closeModal() {
         document.getElementById('modal').style.display = 'none';
     }
 
-    loadTests();
+    // 実行
+    window.onload = init;
 </script>
+
+</body>
+</html>
