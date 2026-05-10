@@ -18,10 +18,46 @@
             padding: 0;
             color: #444;
         }
+
+        /* --- 【追加】ポータル戻るボタン：常に固定され、中央から左に250px（メイン幅想定）の位置 --- */
+        .portal-back-btn {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-250px); /* コンテナ幅に合わせて調整 */
+            z-index: 2000;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid var(--primary-orange);
+            color: var(--dark-orange);
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        /* スマホ対応：画面が狭い時は左端に固定 */
+        @media (max-width: 600px) {
+            .portal-back-btn {
+                left: 10px;
+                top: 10px;
+                transform: none;
+            }
+        }
+
+        .portal-back-btn:hover { background: #FFFFFF; box-shadow: 0 6px 15px rgba(0,0,0,0.2); }
+        .portal-back-btn:active { transform: translateX(-250px) scale(0.95); }
+        @media (max-width: 600px) { .portal-back-btn:active { transform: scale(0.95); } }
+        /* ------------------------------------------------------------------ */
+
         header {
             background-color: var(--primary-orange);
             color: white;
-            padding: 2rem 1rem;
+            padding: 3.5rem 1rem 2rem; /* ボタン用の余白を確保 */
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
@@ -73,7 +109,7 @@
             background: rgba(0,0,0,0.6);
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 3000; /* ボタン(2000)より上に表示 */
             backdrop-filter: blur(5px);
         }
         .modal-content {
@@ -141,7 +177,6 @@
             font-size: 0.8rem;
         }
 
-        /* エラー表示用 */
         .error-msg {
             grid-column: 1 / -1;
             background: #fff;
@@ -153,6 +188,10 @@
     </style>
 </head>
 <body>
+
+<a href="https://kaoman0079-ops.github.io/Meridian-Node/" class="portal-back-btn">
+    <span style="margin-right: 6px; font-size: 1rem;">⏎</span> 🏠 Portal
+</a>
 
 <header>
     <h1>徒手検査データベース</h1>
@@ -167,28 +206,21 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeModal()">&times;</span>
         <div id="modal-body" class="modal-body">
-            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // 1. JSONファイルを読み込んでカードを作る関数
     async function init() {
         const listContainer = document.getElementById('test-list');
-        
         try {
-            // ★重要: GitHub上のJSONファイル名と完全に一致させる必要があります
             const targetFile = 'keikanwan_tests.json';
-            
             const response = await fetch(targetFile);
-            
             if (!response.ok) {
                 throw new Error(`「${targetFile}」が見つかりませんでした。`);
             }
-
             const data = await response.json();
-            listContainer.innerHTML = ''; // 読み込み中メッセージを消す
-
+            listContainer.innerHTML = '';
             data.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'test-card';
@@ -199,23 +231,16 @@
                 card.onclick = () => openModal(item);
                 listContainer.appendChild(card);
             });
-
         } catch (err) {
             listContainer.innerHTML = `
                 <div class="error-msg">
                     <p style="color:red; font-weight:bold;">データの読み込みに失敗しました</p>
                     <p style="font-size:0.9rem;">${err.message}</p>
-                    <p style="font-size:0.8rem; margin-top:10px;">
-                        【確認事項】<br>
-                        1. JSONファイル名は正しいですか？<br>
-                        2. JSONの記述（カンマ等）にミスはないですか？
-                    </p>
                 </div>
             `;
         }
     }
 
-    // 2. ポップアップを開く関数
     function openModal(test) {
         const body = document.getElementById('modal-body');
         body.innerHTML = `
@@ -234,12 +259,10 @@
         document.getElementById('modal').style.display = 'flex';
     }
 
-    // 3. ポップアップを閉じる関数
     function closeModal() {
         document.getElementById('modal').style.display = 'none';
     }
 
-    // 実行
     window.onload = init;
 </script>
 
