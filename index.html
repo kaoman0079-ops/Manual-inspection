@@ -14,155 +14,53 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            color: #444;
+            margin: 0; padding: 0; color: #444;
             -webkit-text-size-adjust: 100%;
         }
 
         /* ポータル戻るボタン */
         .portal-back-btn {
-            position: fixed;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-250px);
-            z-index: 2000;
-            text-decoration: none;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 8px 14px;
-            border-radius: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            border: 1px solid var(--primary-orange);
-            color: var(--dark-orange);
-            font-size: 0.85rem;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            transition: transform 0.2s, background 0.2s;
+            position: fixed; top: 15px; left: 50%; transform: translateX(-250px);
+            z-index: 2000; text-decoration: none; background: rgba(255, 255, 255, 0.95);
+            padding: 8px 14px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border: 1px solid var(--primary-orange); color: var(--dark-orange);
+            font-size: 0.85rem; font-weight: bold; display: flex; align-items: center;
         }
+        @media (max-width: 600px) { .portal-back-btn { left: 10px; top: 10px; transform: none; } }
 
-        @media (max-width: 600px) {
-            .portal-back-btn { left: 10px; top: 10px; transform: none; }
-        }
-
-        .portal-back-btn:active { transform: translateX(-250px) scale(0.95); }
-        @media (max-width: 600px) { .portal-back-btn:active { transform: scale(0.95); } }
-
-        header {
-            background-color: var(--primary-orange);
-            color: white;
-            padding: 4rem 1rem 2rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        header { background-color: var(--primary-orange); color: white; padding: 4rem 1rem 2rem; text-align: center; }
         header h1 { margin: 0; font-size: 1.6rem; font-weight: 800; }
-        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.85rem; font-weight: 600; }
+        header p { margin: 5px 0 0; opacity: 0.9; font-size: 0.85rem; }
 
         .container {
-            max-width: 600px; /* ポータルに合わせた幅 */
-            margin: 1.5rem auto;
-            padding: 0 12px;
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* 常に2列固定 */
-            gap: 12px;
+            max-width: 600px; margin: 1.5rem auto; padding: 0 12px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
 
-        /* 検査カード：2列に最適化 */
         .test-card {
-            background: white;
-            padding: 1.2rem 10px;
-            border-radius: 18px;
-            border-bottom: 5px solid var(--primary-orange);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            min-height: 100px;
+            background: white; padding: 1.2rem 10px; border-radius: 18px;
+            border-bottom: 5px solid var(--primary-orange); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer; text-align: center; min-height: 100px;
+            display: flex; flex-direction: column; justify-content: center;
         }
-        .test-card:active {
-            transform: scale(0.96);
-            background-color: #fffaf5;
-        }
-        .test-card h3 {
-            margin: 0;
-            color: var(--dark-orange);
-            font-size: 1rem;
-            font-weight: 800;
-            line-height: 1.3;
-        }
-        .test-card p {
-            font-size: 0.7rem;
-            color: #8E8E93;
-            margin: 8px 0 0;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .test-card h3 { margin: 0; color: var(--dark-orange); font-size: 1rem; font-weight: 800; }
+        .test-card p { font-size: 0.7rem; color: #8E8E93; margin: 8px 0 0; }
 
-        /* モーダル（詳細画面） */
         .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 3000;
-            backdrop-filter: blur(5px);
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); align-items: center; justify-content: center;
+            z-index: 3000; backdrop-filter: blur(5px);
         }
         .modal-content {
-            background: white;
-            width: 92%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            padding: 1.8rem;
-            border-radius: 25px;
-            position: relative;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            background: white; width: 92%; max-width: 500px; max-height: 80vh;
+            overflow-y: auto; padding: 1.8rem; border-radius: 25px; position: relative;
         }
-        .close-btn {
-            position: absolute;
-            top: 10px; right: 20px;
-            font-size: 2rem;
-            cursor: pointer;
-            color: #C6C6C8;
-        }
+        .close-btn { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: #C6C6C8; }
 
-        .modal-header {
-            border-bottom: 3px solid var(--light-orange);
-            margin-bottom: 1.2rem;
-            padding-bottom: 0.5rem;
-        }
-        .modal-header h2 { margin: 0; color: var(--primary-orange); font-size: 1.4rem; font-weight: 900; }
-        
-        .section-title {
-            font-weight: 800;
-            color: var(--dark-orange);
-            margin-top: 1.2rem;
-            display: block;
-            font-size: 0.9rem;
-            border-left: 5px solid var(--primary-orange);
-            padding-left: 10px;
-        }
-        .modal-body ul { padding-left: 1.2rem; margin: 0.8rem 0; }
-        .modal-body li { margin-bottom: 8px; font-size: 0.95rem; line-height: 1.5; }
-        .positive-box {
-            background-color: var(--light-orange);
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 0.5rem;
-            font-size: 0.95rem;
-            line-height: 1.5;
-            font-weight: 600;
-        }
-        .clinical-text { padding: 5px 10px; font-size: 0.95rem; line-height: 1.6; }
+        .modal-header { border-bottom: 3px solid var(--light-orange); margin-bottom: 1.2rem; padding-bottom: 0.5rem; }
+        .modal-header h2 { margin: 0; color: var(--primary-orange); font-size: 1.4rem; }
+        .section-title { font-weight: 800; color: var(--dark-orange); margin-top: 1.2rem; display: block; border-left: 5px solid var(--primary-orange); padding-left: 10px; }
+        .positive-box { background-color: var(--light-orange); padding: 15px; border-radius: 12px; margin-top: 0.5rem; font-size: 0.95rem; font-weight: 600; }
 
         footer { text-align: center; padding: 3rem 1rem; color: #BBB; font-size: 0.75rem; }
     </style>
@@ -193,10 +91,21 @@
     async function init() {
         const listContainer = document.getElementById('test-list');
         try {
-            const targetFile = 'keikanwan_tests.json?v=' + Date.now();
+            // JSONファイル名の指定（?v=などの余計なものを排除）
+            const targetFile = 'keikanwan_tests.json';
             const response = await fetch(targetFile);
-            if (!response.ok) throw new Error('データが見つかりません');
+            
+            if (!response.ok) {
+                throw new Error(`HTTPエラー! ステータス: ${response.status} (ファイルが見つからない可能性があります)`);
+            }
+            
             const data = await response.json();
+            
+            if (!data || data.length === 0) {
+                listContainer.innerHTML = '<p style="grid-column:1/-1; text-align:center;">表示できるデータがありません。</p>';
+                return;
+            }
+
             listContainer.innerHTML = '';
             data.forEach(item => {
                 const card = document.createElement('div');
@@ -209,4 +118,37 @@
                 listContainer.appendChild(card);
             });
         } catch (err) {
+            console.error("Fetch Error:", err);
             listContainer.innerHTML = `
+                <div style="grid-column:1/-1; text-align:center; color:red; padding:20px;">
+                    <p><b>⚠️ 読み込みに失敗しました</b></p>
+                    <p style="font-size:0.8rem;">原因: ${err.message}</p>
+                    <p style="font-size:0.7rem; color:#666; margin-top:10px;">
+                        ※GitHubに keikanwan_tests.json が正しくアップロードされているか確認してください。
+                    </p>
+                </div>`;
+        }
+    }
+
+    function openModal(test) {
+        const body = document.getElementById('modal-body');
+        body.innerHTML = `
+            <div class="modal-header">
+                <h2>${test.name}</h2>
+            </div>
+            <span class="section-title">操作手順</span>
+            <ul>${test.procedure.map(p => `<li>${p}</li>`).join('')}</ul>
+            <span class="section-title">陽性所見</span>
+            <div class="positive-box">${test.positive_findings}</div>
+            <span class="section-title">臨床的意義</span>
+            <div style="padding:10px; font-size:0.95rem;">${test.clinical_significance}</div>
+        `;
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    window.onload = init;
+</script>
+
+</body>
+</html>
